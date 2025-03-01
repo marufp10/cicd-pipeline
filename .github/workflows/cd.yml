@@ -2,19 +2,18 @@ name: CD Pipeline
 
 on:
   workflow_run:
-    workflows: ["CI Pipeline"]
+    workflows: ["CI Pipeline"]  # Make sure this is the exact name of your CI workflow
     types:
       - completed
 
 jobs:
-
   build:
-
+    if: github.event.workflow_run.conclusion == 'success'  # Ensure CI completed successfully
     runs-on: self-hosted
 
     steps:
     - name: Pull Docker image
-      run: sudo docker pull marufp10/cicd-pipeline:latest
+      run: sudo docker pull marufp 10/cicd-pipeline:latest
     - name: Delete Old docker container
       run: sudo docker rm -f cicd-pipeline-container || true
     - name: Run Docker Container
