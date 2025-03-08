@@ -18,7 +18,7 @@ jobs:
       - name: Delete Old Docker Container
         run: sudo docker rm -f cicd-pipeline-container || true
 
-      # Security Scan with Trivy
+      # Security Scan with Trivy 1
       - name: Security Scan with Trivy
         uses: aquasecurity/trivy-action@master
         with:
