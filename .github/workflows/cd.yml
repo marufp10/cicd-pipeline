@@ -24,7 +24,7 @@ jobs:
       with:
         image-ref: "marufp10/cicd-pipeline:latest"
         format: "table"
-        ignore-unfixed: true  # Ignore vulnerabilities that have no fixed version
+        ignore-unfixed: true  # Ignore vulnerabilities that have no fixed version 1
         severity: "HIGH,CRITICAL"  # Scan only high & critical vulnerabilities
         exit-code: 0  # Do not fail the pipeline, just show the warnings
 
