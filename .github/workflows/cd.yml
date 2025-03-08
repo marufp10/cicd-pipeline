@@ -12,105 +12,105 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Pull Docker Image
-      run: sudo docker pull marufp10/cicd-pipeline:latest
+      - name: Pull Docker Image
+        run: sudo docker pull marufp10/cicd-pipeline:latest
 
-    - name: Delete Old Docker Container
-      run: sudo docker rm -f cicd-pipeline-container || true
+      - name: Delete Old Docker Container
+        run: sudo docker rm -f cicd-pipeline-container || true
 
-    # Security Scan with Trivy
-    - name: Security Scan with Trivy
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: "marufp10/cicd-pipeline:latest"
-        format: "table"
-        ignore-unfixed: true  # Ignore vulnerabilities that have no fixed version 1
-        severity: "HIGH,CRITICAL"  # Scan only high & critical vulnerabilities
-        exit-code: 0  # Do not fail the pipeline, just show the warnings
+      # Security Scan with Trivy
+      - name: Security Scan with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "marufp10/cicd-pipeline:latest"
+          format: "table"
+          ignore-unfixed: true  # Ignore vulnerabilities that have no fixed version
+          severity: "HIGH,CRITICAL"  # Scan only high & critical vulnerabilities
+          exit-code: 0  # Do not fail the pipeline, just show the warnings
 
-    - name: Run Docker Container
-      run: sudo docker run -d -p 8080:8080 --name cicd-pipeline-container marufp10/cicd-pipeline:latest
+      - name: Run Docker Container
+        run: sudo docker run -d -p 8080:8080 --name cicd-pipeline-container marufp10/cicd-pipeline:latest
 
-    - name: Send Slack Notification (Success)
-      if: success()
-      run: |
-        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-        curl -X POST -H 'Content-type: application/json' --data '{
-          "blocks": [
-            {
-              "type": "section",
-              "fields": [
-                {
+      - name: Send Slack Notification (Success)
+        if: success()
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "blocks": [
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Ref*\n<https://github.com/marufp10/cicd-pipeline/tree/${{ github.ref_name }}|${{ github.ref }}>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Event*\n${{ github.event_name }}"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Actions URL*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|CD Pipeline>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${SHORT_SHA}>"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
                   "type": "mrkdwn",
-                  "text": "*Ref*\n<https://github.com/marufp10/cicd-pipeline/tree/${{ github.ref_name }}|${{ github.ref }}>"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Event*\n${{ github.event_name }}"
+                  "text": ":white_check_mark: CD Deployment Successful!\n:tada: The deployment for *marufp10/cicd-pipeline* was successful! :white_check_mark:"
                 }
-              ]
-            },
-            {
-              "type": "section",
-              "fields": [
-                {
-                  "type": "mrkdwn",
-                  "text": "*Actions URL*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|CD Pipeline>"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${SHORT_SHA}>"
-                }
-              ]
-            },
-            {
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": ":white_check_mark: CD Deployment Successful!\n:tada: The deployment for *marufp10/cicd-pipeline* was successful! :white_check_mark:"
               }
-            }
-          ]
-        }' ${{ secrets.SLACK_WEBHOOK_URL }}
+            ]
+          }' ${{ secrets.SLACK_WEBHOOK_URL }}
 
-    - name: Send Slack Notification (Failure)
-      if: failure()
-      run: |
-        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-        curl -X POST -H 'Content-type: application/json' --data '{
-          "blocks": [
-            {
-              "type": "section",
-              "fields": [
-                {
+      - name: Send Slack Notification (Failure)
+        if: failure()
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          curl -X POST -H 'Content-type: application/json' --data '{
+            "blocks": [
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Ref*\n<https://github.com/marufp10/cicd-pipeline/tree/${{ github.ref_name }}|${{ github.ref }}>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Event*\n${{ github.event_name }}"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Actions URL*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|CD Pipeline>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${SHORT_SHA}>"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
                   "type": "mrkdwn",
-                  "text": "*Ref*\n<https://github.com/marufp10/cicd-pipeline/tree/${{ github.ref_name }}|${{ github.ref }}>"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Event*\n${{ github.event_name }}"
+                  "text": ":x: CD Deployment Failed!\n:warning: The deployment for *marufp10/cicd-pipeline* failed! :x:"
                 }
-              ]
-            },
-            {
-              "type": "section",
-              "fields": [
-                {
-                  "type": "mrkdwn",
-                  "text": "*Actions URL*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|CD Pipeline>"
-                },
-                {
-                  "type": "mrkdwn",
-                  "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${SHORT_SHA}>"
-                }
-              ]
-            },
-            {
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": ":x: CD Deployment Failed!\n:warning: The deployment for *marufp10/cicd-pipeline* failed! Check GitHub Actions logs."
               }
-            }
-          ]
-        }' ${{ secrets.SLACK_WEBHOOK_URL }}
+            ]
+          }' ${{ secrets.SLACK_WEBHOOK_URL }}
