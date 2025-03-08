@@ -18,9 +18,9 @@ jobs:
       run: sudo docker rm -f cicd-pipeline-container || true
 
       # :closed_lock_with_key: Security Scan with Trivy
-      -name: Security Scan with Trivy
-       uses: aquasecurity/trivy-action@master
-       with:
+      - name: Security Scan with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
          image-ref: "marufp10/cicd-pipeline:latest"
          format: "table"
          ignore-unfixed: true  # Ignore vulnerabilities that have no fixed version
